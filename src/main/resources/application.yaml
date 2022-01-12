@@ -1,1 +1,22 @@
 
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          fint:
+            client-id: client-id
+            client-secret: client-secret
+            authorization-grant-type: password
+            scope: fint-client
+            provider: fint-idp
+        provider:
+          fint-idp:
+            token-uri: https://idp.felleskomponent.no/nidp/oauth/nam/token
+
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "info, health, metrics, prometheus"
