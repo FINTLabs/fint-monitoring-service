@@ -1,3 +1,10 @@
+apiVersion: onepassword.com/v1
+kind: OnePasswordItem
+metadata:
+  name: fint-monitoring-service
+spec:
+  itemPath: "vaults/aks-infra-vault/items/fint-monitoring-service"
+---
 apiVersion: v1
 kind: Service
 metadata:
@@ -32,10 +39,14 @@ spec:
     metadata:
       labels:
         io.kompose.service: fint-monitoring-service
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+        prometheus.io/path: "/actuator/prometheus"
     spec:
       restartPolicy: Always
       containers:
-        - image: fintlabsacr.azurecr.io/fint-monitoring-service:build.${BUILD_NUMBER}_${GIT_COMMIT}
+        - image: fintlabsacr.azurecr.io/fint-monitoring-service:dummy
           name: fint-monitoring-service
           resources:
             limits:
@@ -46,6 +57,9 @@ spec:
               cpu: "100m"
           ports:
             - containerPort: 8080
+          envFrom:
+            - secretRef:
+                name: fint-monitoring-service
           env:
             - name: TZ
               value: Europe/Oslo
