@@ -28,7 +28,7 @@ jobs:
       - name: Set the target Infra cluster.
         uses: azure/aks-set-context@v1
         with:
-          creds: '${{ secrets.AKS_INFRA_FINT_GITHUB }}'
+          creds: '${{ secrets.AKS_API_INFRA_GITHUB }}'
           cluster-name: ${{ env.INFRA_CLUSTER_NAME }}
           resource-group: ${{ env.INFRA_CLUSTER_RESOURCE_GROUP }}
 
