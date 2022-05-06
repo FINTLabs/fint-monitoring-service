@@ -8,7 +8,7 @@ on:
 env:
 
   INFRA_CLUSTER_NAME: aks-infra-fint-2021-12-27
-  INFRA_CLUSTER_RESOURCE_GROUP: rg-aks-infra-2021-12-27
+  INFRA_CLUSTER_RESOURCE_GROUP: rg-aks-infra
   NAMESPACE: default
   REGISTRY_NAME: fintlabsacr
 
