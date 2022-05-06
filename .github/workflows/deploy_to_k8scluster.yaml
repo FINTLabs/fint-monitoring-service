@@ -1,0 +1,52 @@
+name: deploy
+on:
+  repository_dispatch:
+    types: [ trigger-to-deploy ]
+
+  workflow_dispatch:
+
+env:
+
+  INFRA_CLUSTER_NAME: aks-infra-fint-2021-12-27
+  INFRA_CLUSTER_RESOURCE_GROUP: rg-aks-infra-2021-12-27
+  NAMESPACE: default
+  REGISTRY_NAME: fintlabsacr
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@main
+
+      - name: Get repo name
+        id: get_repo
+        run: echo ::set-output name=REPO::${GITHUB_REPOSITORY#*/}
+
+
+      - name: Set the target Infra cluster.
+        uses: azure/aks-set-context@v1
+        with:
+          creds: '${{ secrets.AKS_INFRA_FINT_GITHUB }}'
+          cluster-name: ${{ env.INFRA_CLUSTER_NAME }}
+          resource-group: ${{ env.INFRA_CLUSTER_RESOURCE_GROUP }}
+
+      - name: Deploy to Infra
+        uses: azure/k8s-deploy@v3.0
+        with:
+          manifests: |
+            k8s.yaml
+          images: |
+            ${{ env.REGISTRY_NAME }}.azurecr.io/${{steps.get_repo.outputs.REPO}}:${{ github.sha }}
+          namespace: ${{ env.NAMESPACE }}
+
+
+      - name: Update FINT slack channel
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_CHANNEL: release
+          SLACK_COLOR: ${{ job.status }}
+          SLACK_MESSAGE: '${{steps.get_repo.outputs.REPO}} :rocket:'
+          SLACK_TITLE: New release
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
