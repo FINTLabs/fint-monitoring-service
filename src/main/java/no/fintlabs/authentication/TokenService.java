@@ -1,45 +1,60 @@
 package no.fintlabs.authentication;
 
+import lombok.extern.slf4j.Slf4j;
 import no.fintlabs.Props;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.oauth2.client.OAuth2AuthorizeRequest;
-import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
-import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientManager;
-import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.stereotype.Component;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.reactive.function.BodyInserter;
+import org.springframework.web.reactive.function.BodyInserters;
+import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
-import java.util.Optional;
+import java.time.Duration;
+import java.util.List;
 
+@Slf4j
 @Component
 public class TokenService {
-    private final ReactiveOAuth2AuthorizedClientManager authorizedClientManager;
-    private final Authentication principal;
     private final Props props;
+    private final WebClient webClient;
 
-    public TokenService(ReactiveOAuth2AuthorizedClientManager authorizedClientManager, Authentication principal, Props props) {
-        this.authorizedClientManager = authorizedClientManager;
-        this.principal = principal;
+    public TokenService(Props props, WebClient webClient) {
         this.props = props;
+        this.webClient = webClient;
     }
 
-    public String getAccessToken() {
+    private MultiValueMap<String, String> getFormData() {
 
-        return Optional.ofNullable(authorizedClient().block())
-                .orElseThrow(FetchTokenException::new)
-                .getAccessToken()
-                .getTokenValue();
+        MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
 
+        formData.put("grant_type", List.of(props.getGrantType()));
+        formData.put("client_id", List.of(props.getClientId()));
+        formData.put("client_secret", List.of(props.getClientSecret()));
+        formData.put("username", List.of(props.getUsername()));
+        formData.put("password", List.of(props.getPassword()));
+        formData.put("scope", List.of(props.getScope()));
+
+        return formData;
     }
 
-    public Mono<OAuth2AuthorizedClient> authorizedClient() {
-        OAuth2AuthorizeRequest authorizeRequest = OAuth2AuthorizeRequest.withClientRegistrationId("fint")
-                .principal(principal)
-                .attributes(attributes -> {
-                    attributes.put(OAuth2ParameterNames.USERNAME, props.getUsername());
-                    attributes.put(OAuth2ParameterNames.PASSWORD, props.getPassword());
-                }).build();
+    public Mono<TokenModel> fetchToken(String uri) {
+        return webClient
+                .post()
+                .uri("https://" + uri + "/nidp/oauth/nam/token")
+                .body(BodyInserters.fromFormData(this.getFormData()))
+                .retrieve()
+                .bodyToMono(TokenModel.class);
+    }
 
-        return authorizedClientManager.authorize(authorizeRequest);
+    public Mono<IntrospectModel> introspectToken(String uri, String token) {
+
+        return webClient
+                .post()
+                .uri("https://" + uri + "/nidp/oauth/v1/nam/introspect")
+                .header("Authorization", props.getAuthorization())
+                .body(BodyInserters.fromFormData("token", token))
+                .retrieve()
+                .bodyToMono(IntrospectModel.class);
     }
 }
