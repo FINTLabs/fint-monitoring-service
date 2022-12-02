@@ -4,14 +4,14 @@ import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Tag;
 import lombok.extern.slf4j.Slf4j;
 import no.fintlabs.Props;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Mono;
 
 import javax.annotation.PostConstruct;
-import java.lang.reflect.Array;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -44,14 +44,12 @@ public class AuthenticationService {
             props.getIps().forEach(uri -> {
                 tokenService
                         .fetchToken(uri)
-                        //.doOnNext()
                         .subscribe(token -> {
                             log.info(token.toString());
                             if (Objects.isNull(token.getAccessToken())) {
                                 updateMetric(FINT_IDP_TOKEN_METRIC, Collections.emptyList(), 0);
                             }
-                            tokenService.introspectToken(uri, token.getRefreshToken() + "123")
-                                    //.doOnNext(itoken -> log.info(itoken.toString()))
+                            tokenService.introspectToken(uri, token.getRefreshToken())
                                     .subscribe(introspectModel -> {
                                         log.info(introspectModel.toString());
                                         if (!introspectModel.getActive()) {

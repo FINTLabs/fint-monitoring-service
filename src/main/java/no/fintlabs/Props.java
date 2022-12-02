@@ -3,8 +3,11 @@ package no.fintlabs;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @Configuration
@@ -36,4 +39,17 @@ public class Props {
 
     @Value("${fint.idp.host}")
     private String host;
+
+    public MultiValueMap<String, String> getFormData() {
+        MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
+
+        formData.put("grant_type", List.of(this.getGrantType()));
+        formData.put("client_id", List.of(this.getClientId()));
+        formData.put("client_secret", List.of(this.getClientSecret()));
+        formData.put("username", List.of(this.getUsername()));
+        formData.put("password", List.of(this.getPassword()));
+        formData.put("scope", List.of(this.getScope()));
+
+        return formData;
+    }
 }
