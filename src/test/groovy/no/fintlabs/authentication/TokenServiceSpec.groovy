@@ -1,39 +1,45 @@
 package no.fintlabs.authentication
 
 import no.fintlabs.Props
-import org.springframework.http.HttpStatus
+import okhttp3.mockwebserver.MockResponse
+import okhttp3.mockwebserver.MockWebServer
 import org.springframework.util.LinkedMultiValueMap
-import org.springframework.web.reactive.function.client.ClientResponse
 import org.springframework.web.reactive.function.client.WebClient
-import reactor.core.publisher.Mono
+import reactor.test.StepVerifier
 import spock.lang.Specification
 
 class TokenServiceSpec extends Specification {
 
     private TokenService tokenService
+    def mockWebServer = new MockWebServer()
+    def props = Mock(Props) { getFormData() >> new LinkedMultiValueMap<>() }
 
     void setup() {
-        def props = Mock(Props) {
-            getFormData() >> new LinkedMultiValueMap<>()
-        }
+        mockWebServer.start()
+        tokenService = new TokenService(
+                props,
+                WebClient.create()
+        )
+    }
 
-        def webClient = WebClient.builder()
-                .exchangeFunction(clientRequest ->
-                        Mono.just(ClientResponse.create(HttpStatus.OK)
-                                .header("content-type", "application/json")
-                                .body("{ \"access_token\" : \"tokenvalue\"}")
-                                .build())
-                ).build()
-
-        tokenService = new TokenService(props, webClient)
+    void cleanup() {
+        mockWebServer.shutdown()
     }
 
     def "When getting access token a token should be present"() {
+        given:
+        mockWebServer.enqueue(new MockResponse()
+                .addHeader("Content-Type", "application/json")
+                .setBody('{"access_token": "tokenValue"}'))
+
         when:
-        def token = tokenService.fetchToken("idp.felleskomponent.no")
+        def tokenMono = tokenService.fetchToken("localhost:" + mockWebServer.getPort())
 
         then:
-        token.block().getAccessToken() == "tokenvalue"
+        StepVerifier
+                .create(tokenMono)
+                .expectNextMatches(token -> token.getAccessToken() == "tokenValue")
+                .verifyComplete()
     }
 
 //    def "If we don't get a valid response from the IDP an exception should be thrown"() {
