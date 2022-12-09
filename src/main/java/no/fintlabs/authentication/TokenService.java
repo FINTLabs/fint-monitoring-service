@@ -21,7 +21,7 @@ public class TokenService {
     public Mono<Token> fetchToken(String uri) {
         return webClient
                 .post()
-                .uri("https://" + uri + "/nidp/oauth/nam/token")
+                .uri(uri + "/nidp/oauth/nam/token")
                 .body(BodyInserters.fromFormData(props.getFormData()))
                 .retrieve()
                 .bodyToMono(Token.class);
@@ -31,7 +31,7 @@ public class TokenService {
 
         return webClient
                 .post()
-                .uri("https://" + uri + "/nidp/oauth/v1/nam/introspect")
+                .uri(uri + "/nidp/oauth/v1/nam/introspect")
                 .header("Authorization", props.getAuthorization())
                 .body(BodyInserters.fromFormData("token", accessToken))
                 .retrieve()
