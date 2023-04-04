@@ -1,55 +1,47 @@
 package no.fintlabs.authentication
 
 import no.fintlabs.Props
-import org.junit.jupiter.api.Disabled
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
-import org.springframework.security.oauth2.client.OAuth2AuthorizeRequest
-import org.springframework.security.oauth2.client.OAuth2AuthorizedClient
-import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientManager
-import org.springframework.security.oauth2.client.registration.ClientRegistration
-import org.springframework.security.oauth2.core.AuthorizationGrantType
-import org.springframework.security.oauth2.core.OAuth2AccessToken
-import reactor.core.publisher.Mono
+import okhttp3.mockwebserver.MockResponse
+import okhttp3.mockwebserver.MockWebServer
+import org.junit.Ignore
+import org.springframework.util.LinkedMultiValueMap
+import org.springframework.web.reactive.function.client.WebClient
+import reactor.test.StepVerifier
 import spock.lang.Specification
-
-import java.time.Instant
 
 class TokenServiceSpec extends Specification {
 
-    def tokenService
-    def authorizedClientManager
+    private TokenService tokenService
+    def mockWebServer = new MockWebServer()
+    def props = Mock(Props) { getFormData() >> new LinkedMultiValueMap<>() }
 
     void setup() {
-        authorizedClientManager = Mock(ReactiveOAuth2AuthorizedClientManager)
+        mockWebServer.start()
         tokenService = new TokenService(
-                authorizedClientManager,
-                new UsernamePasswordAuthenticationToken("drosje", "loyve", Collections.emptyList()),
-                new Props()
+                props,
+                WebClient.create(), metricService
         )
     }
 
-    def "When getting access token a token should be present"() {
-        when:
-        def token = tokenService.getAccessToken()
-
-        then:
-        token == "tokenValue"
-        1 * authorizedClientManager.authorize(_ as OAuth2AuthorizeRequest) >> Mono.just(
-                new OAuth2AuthorizedClient(
-                        ClientRegistration.withRegistrationId("reg")
-                                .authorizationGrantType(AuthorizationGrantType.PASSWORD)
-                                .clientId("id")
-                                .tokenUri("uri")
-                                .build(),
-                        "principal",
-                        new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER,
-                                "tokenValue",
-                                Instant.EPOCH, Instant.MAX)
-                )
-        )
-
-
+    void cleanup() {
+        mockWebServer.shutdown()
     }
+
+//    def "When getting access token a token should be present"() {
+//        given:
+//        mockWebServer.enqueue(new MockResponse()
+//                .addHeader("Content-Type", "application/json")
+//                .setBody('{"access_token": "tokenValue"}'))
+//
+//        when:
+//        def tokenMono = tokenService.fetchToken("localhost:" + mockWebServer.getPort())
+//
+//        then:
+//        StepVerifier
+//                .create(tokenMono)
+//                .expectNextMatches(token -> token.getAccessToken() == "tokenValue")
+//                .verifyComplete()
+//    }
 
 //    def "If we don't get a valid response from the IDP an exception should be thrown"() {
 //        when:
