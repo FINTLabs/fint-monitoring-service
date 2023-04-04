@@ -7,6 +7,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 
 @Data
@@ -25,20 +26,20 @@ public class Props {
     @Value("${fint.client.id}")
     private String clientId;
 
-    @Value("${fint.grant.type}")
+    @Value("${fint.grant.type:password}")
     private String grantType;
 
-    @Value("${fint.idp.ips}")
-    private ArrayList<String> ips;
+    @Value("${fint.idps}")
+    private ArrayList<String> idps;
 
-    @Value("${fint.scope}")
+    @Value("${fint.scope:profile}")
     private String scope;
 
-    @Value("${fint.idp.authorization}")
-    private String authorization;
+    //@Value("${fint.idp.authorization}")
+    //private String authorization;
 
-    @Value("${fint.idp.host}")
-    private String host;
+    //@Value("${fint.idp.host}")
+    //private String host;
 
     public MultiValueMap<String, String> getFormData() {
         MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
@@ -51,5 +52,9 @@ public class Props {
         formData.put("scope", List.of(this.getScope()));
 
         return formData;
+    }
+
+    public String getIntrospectTokenAuthorizationHeader() {
+        return "Basic: " + Base64.getEncoder().encodeToString((clientId + ":" + clientSecret).getBytes());
     }
 }

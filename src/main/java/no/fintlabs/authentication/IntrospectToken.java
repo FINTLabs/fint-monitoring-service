@@ -23,4 +23,8 @@ public class IntrospectToken {
     @JsonProperty("client_id")
     private String clientId;
     private String username;
+
+    public boolean isNotActive() {
+        return !active;
+    }
 }

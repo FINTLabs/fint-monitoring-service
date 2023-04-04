@@ -18,7 +18,7 @@ class TokenServiceSpec extends Specification {
         mockWebServer.start()
         tokenService = new TokenService(
                 props,
-                WebClient.create()
+                WebClient.create(), metricService
         )
     }
 

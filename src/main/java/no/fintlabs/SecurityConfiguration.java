@@ -30,16 +30,16 @@ import java.util.function.Function;
 @Configuration
 public class SecurityConfiguration {
 
-//    @Bean
-//    public SecurityWebFilterChain securityWebFilterChain(final ServerHttpSecurity http) {
-//        return http
-//                .csrf().disable()
-//                .authorizeExchange()
-//                .anyExchange().permitAll()
-//                .and()
-//                .httpBasic().disable()
-//                .build();
-//    }
+    @Bean
+    public SecurityWebFilterChain securityWebFilterChain(final ServerHttpSecurity http) {
+        return http
+                .csrf().disable()
+                .authorizeExchange()
+                .anyExchange().permitAll()
+                .and()
+                .httpBasic().disable()
+                .build();
+    }
 //
 //    @Bean
 //    public Authentication dummyAuthentication() {
