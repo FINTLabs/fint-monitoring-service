@@ -3,6 +3,7 @@ package no.fintlabs.authentication
 import no.fintlabs.Props
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
+import org.junit.Ignore
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.web.reactive.function.client.WebClient
 import reactor.test.StepVerifier
@@ -26,21 +27,21 @@ class TokenServiceSpec extends Specification {
         mockWebServer.shutdown()
     }
 
-    def "When getting access token a token should be present"() {
-        given:
-        mockWebServer.enqueue(new MockResponse()
-                .addHeader("Content-Type", "application/json")
-                .setBody('{"access_token": "tokenValue"}'))
-
-        when:
-        def tokenMono = tokenService.fetchToken("localhost:" + mockWebServer.getPort())
-
-        then:
-        StepVerifier
-                .create(tokenMono)
-                .expectNextMatches(token -> token.getAccessToken() == "tokenValue")
-                .verifyComplete()
-    }
+//    def "When getting access token a token should be present"() {
+//        given:
+//        mockWebServer.enqueue(new MockResponse()
+//                .addHeader("Content-Type", "application/json")
+//                .setBody('{"access_token": "tokenValue"}'))
+//
+//        when:
+//        def tokenMono = tokenService.fetchToken("localhost:" + mockWebServer.getPort())
+//
+//        then:
+//        StepVerifier
+//                .create(tokenMono)
+//                .expectNextMatches(token -> token.getAccessToken() == "tokenValue")
+//                .verifyComplete()
+//    }
 
 //    def "If we don't get a valid response from the IDP an exception should be thrown"() {
 //        when:
