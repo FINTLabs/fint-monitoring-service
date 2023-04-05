@@ -1,0 +1,14 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - deployment.yaml
+  - onepassword.yml
+  - service.yaml
+commonLabels:
+  app.kubernetes.io/name: fint-monitoring-service
+  app.kubernetes.io/instance: fint-monitoring-service
+  app.kubernetes.io/version: "latest"
+  app.kubernetes.io/managed-by: GA
+  app.kubernetes.io/component: operator
+  app.kubernetes.io/part-of: fintlabs-application-infrastructure-services
+  fintlabs.no/team: flais

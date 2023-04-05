@@ -1,8 +1,8 @@
-name: Create and publish a Docker image
+name: Build and deploy
 
 on:
   push:
-    #branches: ['main']
+    branches: ['main']
 
 env:
   REGISTRY: ghcr.io
@@ -44,26 +44,27 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
-      ## Alpha cluster ##
-#      - name: Bake alpha manifests with Kustomize
-#        uses: azure/k8s-bake@v2.2
-#        with:
-#          renderEngine: 'kustomize'
-#          kustomizationPath: 'kustomize/overlays/alpha'
-#        id: bake-alpha
-#
-#      - name: Set the target Alpha cluster.
-#        uses: azure/aks-set-context@v1
-#        with:
-#          creds: '${{ secrets.AKS_ALPHA_FINT_GITHUB }}'
-#          cluster-name: ${{ env.ALPHA_CLUSTER_NAME }}
-#          resource-group: ${{ env.ALPHA_CLUSTER_RESOURCE_GROUP }}
-#
-#      - name: Deploy to Alpha
-#        uses: azure/k8s-deploy@v4.4
-#        with:
-#          manifests: ${{ steps.bake-alpha.outputs.manifestsBundle }}
-#          images: |
-#            ${{ steps.meta.outputs.tags }}
-#          namespace: henrik
-#          action: deploy
+      ## Infra cluster ##
+      - name: Bake infra manifests with Kustomize
+        uses: azure/k8s-bake@v2.2
+        with:
+          renderEngine: 'kustomize'
+          kustomizationPath: 'kustomize/base'
+        id: bake-infra
+
+      - name: Set the target Infra cluster.
+        uses: azure/aks-set-context@v1
+        with:
+          creds: '${{ secrets.AKS_INFRA_FINT_GITHUB }}'
+          cluster-name: ${{ env.INFRA_CLUSTER_NAME }}
+          resource-group: ${{ env.INFRA_CLUSTER_RESOURCE_GROUP }}
+
+      - name: Deploy to Infra
+        uses: azure/k8s-deploy@v4.4
+        with:
+          manifests: ${{ steps.bake-infra.outputs.manifestsBundle }}
+          images: |
+            ${{ steps.meta.outputs.tags }}
+          namespace: default
+          action: deploy
+
