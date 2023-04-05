@@ -1,33 +1,7 @@
 server:
   port: 8085
 
-fint:
-  idps: https://vm-idp01.management.private, https://vm-idp02.management.private, https://vm-idp03.management.private
-#spring:
-#  security:
-#    oauth2:
-#      client:
-#        registration:
-#          fint:
-#            client-id: client-id
-#            client-secret: client-secret
-#            authorization-grant-type: password
-#            scope: fint-client
-#            provider: fint-idp
-#        provider:
-#          fint-idp:
-#            token-uri: https://idp.felleskomponent.no/nidp/oauth/nam/token
-
-
-#management:
-#  endpoints:
-#    web:
-#      exposure:
-#        include: "info, health, metrics, prometheus"
-
 management:
-  security:
-    enabled: false
   endpoints:
     web:
       exposure:

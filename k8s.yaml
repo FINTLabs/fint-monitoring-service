@@ -24,7 +24,6 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  annotations:
   labels:
     io.kompose.service: fint-monitoring-service
   name: fint-monitoring-service
@@ -46,7 +45,7 @@ spec:
     spec:
       restartPolicy: Always
       containers:
-        - image: fintlabsacr.azurecr.io/fint-monitoring-service:dummy
+        - image: ghcr.io/fintlabs/fint-monitoring-service:sha-e317ef2
           name: fint-monitoring-service
           resources:
             limits:
