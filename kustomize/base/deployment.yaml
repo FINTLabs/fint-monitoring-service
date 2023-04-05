@@ -37,7 +37,9 @@ spec:
             initialDelaySeconds: 30
             periodSeconds: 5
           ports:
-            - containerPort: 8080
+            - name: http
+              containerPort: 8080
+              protocol: TCP
           envFrom:
             - secretRef:
                 name: fint-monitoring-service
