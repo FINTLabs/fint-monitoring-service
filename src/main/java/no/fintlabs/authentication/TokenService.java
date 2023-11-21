@@ -28,7 +28,10 @@ public class TokenService {
                 .uri(uri + "/nidp/oauth/nam/token")
                 .body(BodyInserters.fromFormData(props.getFormData()))
                 .retrieve()
-                .onStatus((HttpStatus::isError), it -> Mono.empty())
+                .onStatus((HttpStatus::isError), it -> {
+                    log.info("IDP returned error: " + it.statusCode() + ", uri: " + uri);
+                    return Mono.empty();
+                })
                 .bodyToMono(Token.class)
                 .onErrorResume(throwable -> {
                     metricService.updateMetric(uri, 0);
