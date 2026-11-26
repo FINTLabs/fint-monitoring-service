@@ -3,8 +3,34 @@ name: CodeQL
 on:
   push:
     branches: ['main']
+    paths:
+      - 'src/main/**/*.java'
+      - 'src/main/**/*.kt'
+      - '**/*.gradle'
+      - '**/*.gradle.kts'
+      - '**/gradle.properties'
+      - '**/gradle.lockfile'
+      - 'gradle/**'
+      - 'buildSrc/**'
+      - 'gradlew'
+      - 'gradlew.bat'
+      - '.github/workflows/codeql.yaml'
+      - '.github/codeql/**'
   pull_request:
     branches: ['main']
+    paths:
+      - 'src/main/**/*.java'
+      - 'src/main/**/*.kt'
+      - '**/*.gradle'
+      - '**/*.gradle.kts'
+      - '**/gradle.properties'
+      - '**/gradle.lockfile'
+      - 'gradle/**'
+      - 'buildSrc/**'
+      - 'gradlew'
+      - 'gradlew.bat'
+      - '.github/workflows/codeql.yaml'
+      - '.github/codeql/**'
   schedule:
     - cron: '23 6 * * 1'
   workflow_dispatch:
